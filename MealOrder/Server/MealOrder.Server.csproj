@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UserSecretsId>758b0f09-cb1c-448b-854c-ce4e035b9e1b</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="11.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="5.0.16" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\MealOrder.Server.Data\MealOrder.Server.Data.csproj" />
+    <ProjectReference Include="..\Client\MealOrder.Client.csproj" />
+    <ProjectReference Include="..\Shared\MealOrder.Shared.csproj" />
+  </ItemGroup>
+
+
+</Project>
