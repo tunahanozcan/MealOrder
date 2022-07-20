@@ -12,5 +12,7 @@ namespace MealOrder.Server.Services.Infrastruce
         public Task<UserDTO> CreateUser(UserDTO user);
         public Task<UserDTO> UpdateUser(UserDTO user);
         public Task<bool> DeleteUser(int Id);
+        public Task<bool> DeleteUserById(int Id);
+        public string Login(string Email, string Password);
     }
 }

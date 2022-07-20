@@ -4,9 +4,14 @@ using MealOrder.Server.Data.Models;
 using MealOrder.Server.Services.Infrastruce;
 using MealOrder.Shared.DTO;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
+using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace MealOrder.Server.Services.Services
@@ -15,11 +20,13 @@ namespace MealOrder.Server.Services.Services
     {
         private readonly IMapper mapper;
         private readonly MealOrderContext context;
+        private readonly IConfiguration configuration;
 
-        public UserService(IMapper Mapper,MealOrderContext Context)
+        public UserService(IMapper Mapper, MealOrderContext Context, IConfiguration Configuration)
         {
             mapper = Mapper;
             context = Context;
+            configuration = Configuration;
         }
 
         public async Task<UserDTO> CreateUser(UserDTO user)
@@ -48,6 +55,19 @@ namespace MealOrder.Server.Services.Services
             return result > 0;
         }
 
+        public async Task<bool> DeleteUserById(int Id)
+        {
+            var dbUser = await context.Users.FirstOrDefaultAsync(i => i.Id == Id);
+
+            if (dbUser == null)
+                throw new Exception("User not found");
+
+            context.Users.Remove(dbUser);
+            int result = await context.SaveChangesAsync();
+
+            return result > 0;
+        }
+
         public async Task<UserDTO> GetUserById(int Id)
         {
             return await context.Users
@@ -62,6 +82,26 @@ namespace MealOrder.Server.Services.Services
                                 .Where(x => x.IsActive)
                                 .ProjectTo<UserDTO>(mapper.ConfigurationProvider)
                                 .ToListAsync();
+        }
+
+        public string Login(string Email, string Password)
+        {
+            //Veritabanı kullanıcı doğrulama işlemleri yapıldı.
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["JwtSecurityKey"]));
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var expiry = DateTime.Now.AddDays(int.Parse(configuration["JwtExpiryInDays"].ToString()));
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Email,Email)
+            };
+
+            var token = new JwtSecurityToken(configuration["JwtIssuer"], configuration["JwtAudience"], claims, null, expiry, creds);
+
+            string tokenStr = new JwtSecurityTokenHandler().WriteToken(token);
+
+            return tokenStr;
         }
 
         public async Task<UserDTO> UpdateUser(UserDTO user)
